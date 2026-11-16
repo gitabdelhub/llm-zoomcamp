@@ -1588,13 +1588,16 @@
     const questions = [];
     let ctx = []; // les sections entre deux questions servent de contexte à la suivante
     sections.forEach(s => {
-      const m = s.title.match(/^Question\s+(\d+)[.:]?\s*(.*)$/i);
+      // « ## Question 1. … » (DE) ou « ## Q1. … » (LLM)
+      const m = s.title.match(/^(?:Question\s+|Q)(\d+)[.:]?\s*(.*)$/i);
       if (!m) { ctx.push(s); return; }
       const opts = [], text = [];
+      // Les options sont des puces « * » (LLM) ou « - » (DE). S'il y a des « * », les « - » restent du texte d'explication.
+      const bullet = s.lines.some(l => /^\* /.test(l)) ? /^\* / : /^- /;
       let f = false;
       s.lines.forEach(l => {
         if (/^(```|~~~)/.test(l)) f = !f;
-        if (!f && /^- /.test(l)) opts.push(l.slice(2).trim());
+        if (!f && bullet.test(l)) opts.push(l.slice(2).trim());
         else text.push(l);
       });
       questions.push({ n: +m[1], title: m[2], text: text.join("\n").trim(), opts, ctx });

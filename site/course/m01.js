@@ -38,8 +38,8 @@
       videos: [{ yt: "PQpQOR3Un3w", label: "ToyAIKit" }] },
     { type: "lesson", light: true, id: "01-16", title: "Les autres frameworks", min: 20, src: dir + "16-other-frameworks.md", hash: "424e64f3", overlay: "course/m01/16.md",
       videos: [{ yt: "4yiCbKX9RhI", label: "Autres frameworks" }] },
-    { type: "homework", id: "01-hw", title: "Homework 1 : le RAG agentique", min: 180, src: "cohorts/2026/homework/01-agentic-rag/homework.md", hash: "d0c4465b", overlay: "course/m01/hw.md" },
+    { type: "homework", id: "01-hw", title: "Homework 1 : RAG agentique", min: 180, src: "cohorts/2026/homework/01-agentic-rag/homework.md", hash: "d0c4465b", overlay: "course/m01/hw.md" },
     { type: "defi", id: "01-defi", title: "Défi : ta propre boîte à outils d'agent", min: 150, overlay: "course/m01/defi.md", script: "site/checks/defi-01.py",
-      codeHash: "CODEHASH", seq: "agentkit.py, vérifié par un faux client" }
+      codeHash: "e522ae7d16abc72a754332164b1611ae443a4bae0acbcdc883e8477f0196b750", seq: "agentkit.py, vérifié par un faux client" }
   ]);
 })();
