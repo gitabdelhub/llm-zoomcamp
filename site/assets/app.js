@@ -751,7 +751,7 @@
       ["W1-02", "Une API page par page avec dlt", "le workshop des traces LLM"]
     ];
     return `<article class="atelier">
-      <div class="mosaic">${window.ART ? ART.de() : ""}<div class="tag"><i></i>Déjà appris au Zoomcamp DE</div></div>
+      <div class="mosaic toki"><img src="assets/toki-silo.svg?v=20261116i" alt="Toki, la mascotte du LLM Zoomcamp, perché sur Silo, celle du Zoomcamp DE"><div class="tag"><i></i>Déjà appris au Zoomcamp DE</div></div>
       <div class="txt">
         <span class="mono-lab">Ce que tu sais déjà</span>
         <h2>Pas de module 0 ici : tu l'as déjà fait.</h2>
