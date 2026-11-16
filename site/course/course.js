@@ -74,7 +74,7 @@ window.COURSE = {
       cover: { scene: "launch", logos: [["github", "#181717"], ["docker", "#2496ED"], ["python", "#3776AB"]] },
       art: { bg: "#c8bcff", seed: 9 }, logo: ["github", "#181717"],
       sats: [["docker", "#2496ED"], ["streamlit", "#FF4B4B"], ["grafana", "#F46800"]], help: 1,
-      gate: "Ton projet rendu et relu", planned: 1, items: []
+      gate: "Ton projet rendu et relu", planned: 5, items: []
     }
   ]
 };
