@@ -188,3 +188,9 @@ a.btn,.navl a,.logo,.mod,.mlist a,.ftoc a,.resume,.syncp,.lang-btn{text-decorati
 .tbox .lvup{font-family:var(--mono);font-size:14px}
 .tbox .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px}
 @media (prefers-reduced-motion:reduce){.tro:not(.off) .medal,.tmodal,.tbox{animation:none}}
+/* Toki, la mascotte (dessin d'AB) : sur Silo, la mascotte du Zoomcamp DE, dans le bloc « Ce que tu sais déjà ». */
+.logo img{display:block;border-radius:8px}
+.mosaic.toki{background:#FFF6E6;display:grid;place-items:center;padding:56px 20px 20px}
+.mosaic.toki img{width:min(100%,420px);height:auto;display:block}
+/* Sur téléphone, les lignes du bloc DE passent sur deux lignes au lieu de déborder. */
+@media (max-width:600px){.atelier .txt{padding:24px 16px}.todo div{flex-wrap:wrap}.todo .k{white-space:normal}}
