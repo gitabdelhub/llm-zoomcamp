@@ -1637,6 +1637,7 @@
     const isQDone = n => { const q = H.q[n]; return q && (q.choice != null || q.other.trim()) && q.how.trim().length >= 30; };
 
     function renderList() {
+      $("#qlist").hidden = !Q.length;
       $("#qlist").innerHTML = Q.map(q => `<button class="${q.n === H.cur ? "on" : ""}" data-q="${q.n}">${q.n}. ${esc(shortTitle(q.title))} <span class="s">${isQDone(q.n) ? "✓ fait" : "à faire"}</span></button>`).join("");
       $$("#qlist [data-q]").forEach(b => b.addEventListener("click", () => { H.cur = +b.dataset.q; save(); renderQ(); renderList(); }));
       const all = Q.every(q => isQDone(q.n));
@@ -1658,7 +1659,19 @@
       renderMd($(".md", box), hw.outro.filter(s => !/Submitting/i.test(s.title)).map(s => "## " + s.title + "\n" + s.lines.join("\n")).join("\n\n"), base);
       $("#qcard").appendChild(box);
     }
+    // Homework sans questions (une réflexion) : l'énoncé officiel et une zone de texte gardée dans le navigateur.
+    function renderReflect() {
+      const card = $("#qcard");
+      card.innerHTML = `<span class="eyebrow">Réflexion, sans question à choix</span><h2>L'énoncé officiel</h2>
+        <div class="md qtext"></div>
+        <label class="howl"><span class="lab">Ta réflexion (brouillon de ton README)</span><textarea class="mono how" rows="12" placeholder="Ce que tu as comparé, tes chiffres, ce que tu prendrais en production, ce que tu essaierais ensuite.">${esc(H.reflect || "")}</textarea></label>
+        <p class="small">Gardé dans ce navigateur seulement : copie-le dans ton README.md et pousse-le sur ton fork.</p>`;
+      renderMd($(".qtext", card), hw.intro.replace(/^#\s.*\n/, ""), base);
+      $(".how", card).addEventListener("input", e => { H.reflect = e.target.value; saveSoon(); });
+      renderOutro();
+    }
     function renderQ() {
+      if (!Q.length) return renderReflect();
       const q = Q.find(x => x.n === H.cur) || Q[0];
       const s = qs(q.n);
       const hints = listItems(ov["q" + q.n]);
