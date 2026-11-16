@@ -187,5 +187,14 @@
     return out + "</svg>";
   }
 
-  window.ART = { svg, C, cover, home, de };
+
+  // Une médaille de trophée : un cercle de couleur, une forme au centre. Verrouillée : un cercle en pointillés.
+  function medal(g, c, locked) {
+    if (locked) return `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="art medal"><circle cx="60" cy="60" r="50" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="2" stroke-dasharray="6 6"/><text x="60" y="70" text-anchor="middle" font-family="Geist Mono,ui-monospace,monospace" font-size="26" fill="currentColor" fill-opacity=".4">?</text></svg>`;
+    const inner = g === "checker" ? SHAPES.checker(C.black, c === C.yellow ? C.white : C.yellow) : SHAPES[g] ? SHAPES[g](g === "dot" || g === "hex" ? c : C.black) : "";
+    return `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="art medal"><circle cx="64" cy="64" r="50" fill="${K}"/><circle cx="60" cy="60" r="50" fill="${c}" stroke="${K}" stroke-width="3"/>` +
+      `<circle cx="60" cy="60" r="34" fill="${W}" stroke="${K}" stroke-width="2.5"/><g transform="translate(37 37) scale(.46)"><g style="transform-origin:50px 50px;transform-box:fill-box">${inner}</g></g></svg>`;
+  }
+
+  window.ART = { svg, C, cover, home, de, medal };
 })();

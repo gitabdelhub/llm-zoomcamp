@@ -30,7 +30,7 @@
   /* ---------- la progression ---------- */
 
   const KEY = "mlc.v1";
-  function blank() { return { done: {}, les: {}, notes: {}, hw: {}, video: {}, maj: {}, doneAt: {} }; }
+  function blank() { return { done: {}, les: {}, notes: {}, hw: {}, video: {}, maj: {}, doneAt: {}, seen: {} }; }
   function load() {
     try { return Object.assign(blank(), JSON.parse(localStorage.getItem(KEY) || "{}")); }
     catch (e) { return blank(); }
@@ -73,9 +73,154 @@
   const current = () => ITEMS.find(i => !isDone(i.id)) || null;
   const doneCount = (list = ITEMS) => list.filter(i => isDone(i.id)).length;
   function markDone(id) {
+    const was = isDone(id), before = xpTotal();
     S.done[id] = true; S.doneAt[id] = Date.now(); save();
+    if (!was) setTimeout(() => rewards(before), 450);
     const cur = current(), href = cur ? "#/l/" + cur.id : "#/progression";
     $("#continue").href = href; $("#nav-seance").href = href;
+  }
+
+
+  /* ---------- XP et trophées ----------
+     L'XP se calcule à partir de ce qui est fait (rien de plus à sauvegarder) : une étape finie, une explication écrite, un module validé.
+     Les trophées : l'affiche de chaque module validé, et des médailles d'étapes. S.seen garde ceux déjà annoncés. Aucune date, aucun délai. */
+  const XP = { lesson: 20, lightp: 15, light: 10, homework: 50, defi: 80, explain: 5, module: 100 };
+  const itemXp = it => it.type === "homework" ? XP.homework : it.type === "defi" ? XP.defi : it.light === "p" ? XP.lightp : it.light ? XP.light : XP.lesson;
+  const explained = it => it.type === "lesson" && isDone(it.id) && S.les[it.id] && S.les[it.id].explain;
+  function xpTotal() {
+    let t = 0;
+    ALL.forEach(it => { if (isDone(it.id)) t += itemXp(it) + (explained(it) ? XP.explain : 0); });
+    C.modules.forEach(m => { if (m.items.length && modStatus(m) === "done") t += XP.module; });
+    return t;
+  }
+  const LEVELS = [[0, "Curieux"], [100, "Chercheur"], [300, "Prompteur"], [600, "Bâtisseur de RAG"], [1000, "Dresseur d'agents"], [1500, "Évaluateur"], [2100, "Opérateur LLM"], [2800, "AI engineer"]];
+  function level(xp) {
+    let i = 0;
+    while (i + 1 < LEVELS.length && xp >= LEVELS[i + 1][0]) i++;
+    const nx = LEVELS[i + 1];
+    return { n: i + 1, name: LEVELS[i][1], from: LEVELS[i][0], to: nx ? nx[0] : null, next: nx ? nx[1] : null };
+  }
+  // Le parcours entier, modules pas encore écrits compris (leur nombre de leçons prévu).
+  const TOTAL = () => PATH.reduce((a, m) => a + (m.items.length || m.planned || 0), 0);
+  const nDone = t => ALL.filter(i => i.type === t && isDone(i.id)).length;
+  const MEDALS = [
+    ["t-1", "Premier pas", "Termine ta première étape.", "dot", "lime", () => doneCount(ALL) >= 1],
+    ["t-10", "Lancé", "10 étapes terminées.", "arc", "sky", () => doneCount(ALL) >= 10],
+    ["t-25", "Régulier", "25 étapes terminées.", "flower", "green", () => doneCount(ALL) >= 25],
+    ["t-50", "Marathon", "50 étapes terminées.", "hex", "orange", () => doneCount(ALL) >= 50],
+    ["t-hw", "Premier homework", "Rends ton premier homework.", "checker", "yellow", () => nDone("homework") >= 1],
+    ["t-defi", "Défi relevé", "Réussis ton premier défi, sans guide.", "asterisk", "magenta", () => nDone("defi") >= 1],
+    ["t-exp", "Prof", "Écris 10 explications avec tes mots.", "pill", "lav", () => ALL.filter(explained).length >= 10],
+    ["t-half", "Mi-chemin", "La moitié de tout le parcours.", "half", "blue", () => doneCount() >= TOTAL() / 2 && doneCount() > 0],
+    ["t-all", "AI engineer", "Tout le parcours, projet final compris.", "blob", "yellow", () => PATH.every(m => modStatus(m) === "done")]
+  ];
+  function trophies() {
+    const mods = PATH.map(m => ({ id: "m-" + m.id, mod: m, name: m.id === "P" ? "Projet final" : `${modName(m)} : ${m.title}`, desc: `Valide toutes les étapes du ${m.id === "P" ? "projet final" : m.id === "W1" ? "workshop" : "module " + Number(m.id)}.`, ok: () => m.items.length > 0 && modStatus(m) === "done" }));
+    const meds = MEDALS.map(([id, name, desc, g, c, ok]) => ({ id, name, desc, g, c, ok }));
+    return mods.concat(meds);
+  }
+  function trophyArt(t, locked) {
+    if (!window.ART) return "";
+    if (t.mod) return locked ? `<span class="tlock">${esc(t.mod.id)}</span>` : ART.cover(t.mod);
+    return ART.medal(t.g, ART.C[t.c], locked);
+  }
+  function xpBlock() {
+    const xp = xpTotal(), l = level(xp);
+    const pct = l.to ? Math.round((xp - l.from) / (l.to - l.from) * 100) : 100;
+    return `<div class="xpblock">
+      <div><span class="eyebrow">Ton niveau</span><strong>Niveau ${l.n} · ${esc(l.name)}</strong></div>
+      <div class="xpbar" role="img" aria-label="${pct} % du niveau"><b style="width:${pct}%"></b></div>
+      <div class="xpr"><strong>${xp} XP</strong><span>${l.to ? `${l.to - xp} XP avant « ${esc(l.next)} »` : "Niveau maximum"}</span></div>
+    </div>`;
+  }
+  function shelf(full) {
+    const ts = trophies(), got = ts.filter(t => t.ok()).length;
+    const one = t => {
+      const ok = t.ok();
+      return `<figure class="tro${t.mod ? " poster" : ""}${ok ? "" : " off"}" title="${esc(t.name)} : ${esc(t.desc)}"><div class="tart">${trophyArt(t, !ok)}</div>
+        ${full ? `<figcaption><b>${esc(t.name)}</b><span>${ok ? "Gagné" : esc(t.desc)}</span>${ok && t.mod ? `<button class="btn ghost sm" data-poster="${esc(t.mod.id)}">Télécharger l'affiche</button>` : ""}</figcaption>` : ""}</figure>`;
+    };
+    return `<div class="trophies${full ? " full" : ""}">
+      <div class="shelf">${ts.filter(t => t.mod).map(one).join("")}</div>
+      <div class="medals">${ts.filter(t => !t.mod).map(one).join("")}</div>
+      <p class="small">${got} trophée${got > 1 ? "s" : ""} sur ${ts.length}. Une affiche par module validé, une médaille par étape du chemin.</p>
+    </div>`;
+  }
+  function xpChip() {
+    const el = $("#xpchip");
+    if (!el) return;
+    const xp = xpTotal(), l = level(xp);
+    el.innerHTML = `<b>${xp}</b> XP <span>· niv. ${l.n}</span>`;
+    el.title = `Niveau ${l.n} : ${l.name}. Tes trophées et ton XP`;
+  }
+  let xpTimer = 0;
+  function xpToast(text) {
+    let t = $("#xptoast");
+    if (!t) { t = doc.createElement("div"); t.id = "xptoast"; t.className = "xptoast"; t.setAttribute("role", "status"); doc.body.appendChild(t); }
+    t.textContent = text;
+    t.classList.add("on");
+    clearTimeout(xpTimer);
+    xpTimer = setTimeout(() => t.classList.remove("on"), 2200);
+  }
+  // Après une étape finie (before = l'XP d'avant), ou au chargement (before = null) : annonce l'XP gagnée et les trophées nouveaux.
+  function rewards(before) {
+    const after = xpTotal();
+    xpChip();
+    if (before != null && after > before) xpToast(`+${after - before} XP`);
+    const fresh = trophies().filter(t => t.ok() && !S.seen[t.id]);
+    const up = before != null && level(after).n > level(before).n ? level(after) : null;
+    if (!fresh.length && !up) return;
+    fresh.forEach(t => { S.seen[t.id] = Date.now(); });
+    save();
+    trophyModal(fresh, up);
+  }
+  function trophyModal(list, up) {
+    const old = $("#tmodal"); if (old) old.remove();
+    const m = doc.createElement("div");
+    m.id = "tmodal"; m.className = "tmodal"; m.setAttribute("role", "dialog"); m.setAttribute("aria-modal", "true");
+    const first = list[0];
+    const title = first ? (list.length > 1 ? `${list.length} trophées débloqués` : "Trophée débloqué") : "Niveau supérieur";
+    m.innerHTML = `<div class="tbox">
+      ${first ? `<div class="tart${first.mod ? " poster" : ""}">${trophyArt(first, false)}</div>` : ""}
+      <span class="eyebrow">${title}</span>
+      <h2>${first ? esc(first.name) : `Niveau ${up.n} · ${esc(up.name)}`}</h2>
+      ${first ? `<p>${esc(first.desc)}</p>` : ""}
+      ${list.length > 1 ? `<p class="small">Et aussi : ${list.slice(1).map(t => esc(t.name)).join(", ")}.</p>` : ""}
+      ${up && first ? `<p class="lvup">Tu passes au niveau ${up.n} : <b>${esc(up.name)}</b>.</p>` : ""}
+      <div class="row"><a class="btn" href="#/progression" id="tm-see">Voir mes trophées</a><button class="btn ghost" id="tm-close">Continuer</button></div>
+    </div>`;
+    doc.body.appendChild(m);
+    const close = () => { m.remove(); doc.removeEventListener("keydown", onKey); };
+    const onKey = e => { if (e.key === "Escape") close(); };
+    doc.addEventListener("keydown", onKey);
+    m.addEventListener("click", e => { if (e.target === m || e.target.id === "tm-close" || e.target.id === "tm-see") close(); });
+    $("#tm-close", m).focus();
+    celebrate(true);
+  }
+  // L'affiche d'un module validé, en PNG 1200 x 630 (le format des images de post LinkedIn).
+  function posterPng(m) {
+    const words = m.title.split(" "), lines = [""];
+    words.forEach(w => { if (lines[lines.length - 1] && (lines[lines.length - 1] + " " + w).length > 13) lines.push(w); else lines[lines.length - 1] = (lines[lines.length - 1] + " " + w).trim(); });
+    // L'illustration entière (sans recadrage), sur un fond de sa couleur.
+    const art = `<rect width="720" height="630" fill="${m.art.bg}"/>` + ART.cover(m).replace("<svg ", '<svg x="0" y="0" width="720" height="630" ').replace('preserveAspectRatio="xMidYMid slice"', 'preserveAspectRatio="xMidYMid meet"');
+    const e = x => String(x).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630"><rect width="1200" height="630" fill="#fff"/>${art}
+      <line x1="720" y1="0" x2="720" y2="630" stroke="#0a0a0a" stroke-width="3"/>
+      <text x="772" y="96" font-family="ui-monospace,Menlo,monospace" font-size="20" letter-spacing="3" fill="#5f5f5f">MON LLM ZOOMCAMP</text>
+      <text x="772" y="178" font-family="Inter,Helvetica,Arial,sans-serif" font-size="30" fill="#0a0a0a">${e(m.id === "P" ? "Projet final terminé" : m.id === "W1" ? "Workshop terminé" : "Module " + Number(m.id) + " terminé")}</text>
+      ${lines.map((l, i) => `<text x="772" y="${256 + i * 58}" font-family="Inter,Helvetica,Arial,sans-serif" font-weight="600" font-size="50" letter-spacing="-1.5" fill="#0a0a0a">${e(l)}</text>`).join("")}
+      <text x="772" y="540" font-family="ui-monospace,Menlo,monospace" font-size="19" fill="#0a0a0a">${e(m.items.length)} étapes validées</text>
+      <text x="772" y="572" font-family="ui-monospace,Menlo,monospace" font-size="19" fill="#5f5f5f">DataTalksClub LLM Zoomcamp</text></svg>`;
+    return new Promise((res, rej) => {
+      const img = new Image();
+      img.onload = () => {
+        const cv = doc.createElement("canvas"); cv.width = 1200; cv.height = 630;
+        cv.getContext("2d").drawImage(img, 0, 0);
+        cv.toBlob(b => b ? res(b) : rej(new Error("toBlob")), "image/png");
+      };
+      img.onerror = rej;
+      img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+    });
   }
 
   function modStatus(m) {
@@ -418,13 +563,14 @@
     const cont = $("#continue");
     cont.href = cur ? "#/l/" + cur.id : "#/progression";
     $("#nav-seance").href = cont.href;
+    xpChip();
   }
   let lastIt = null;
   function onRoute() {
     cleanups.forEach(f => { try { f(); } catch (e) { /* rien */ } });
     cleanups = [];
     routeToken++;
-    const [r, a, b] = location.hash.replace(/^#\/?/, "").split("/");
+    const [r, a, b] = location.hash.replace(/^#\/?/, "").split("#")[0].split("/");
     setNav(r === "l" ? "seance" : r || "home");
     // Le titre de l'onglet suit la page : utile avec plusieurs onglets ou dans l'historique.
     const it = r === "l" && byId(a), mod = r === "m" && C.modules.find(m => m.id === a);
@@ -486,7 +632,10 @@
 
     <section class="section gut"><div class="max">
       ${welcome() || '<div class="today" id="today"></div>'}
+      ${xpBlock()}
       ${statRow()}
+      <div class="sh" style="margin-top:64px"><div><span class="mono-lab">Une affiche par module validé, une médaille par étape</span><h2>Tes trophées</h2></div><a class="eyebrow" href="#/progression#trophees">Tout voir</a></div>
+      ${shelf(false)}
       <div class="sh"><div><span class="mono-lab">Contenu de la cohorte 2026</span><h2>Les modules</h2></div><span class="eyebrow">Tous les modules sont ouverts</span></div>
       <div class="mods">${PATH.map(modCard).join("")}</div>
       ${LIB.length ? `<div class="sh" style="margin-top:64px"><div><span class="mono-lab">Hors parcours, facultatif</span><h2>Bibliothèque</h2></div><span class="eyebrow">Toujours ouvert, ta progression est gardée</span></div>
@@ -1396,7 +1545,7 @@
     cv.width = W * d; cv.height = H * d;
     const x = cv.getContext("2d");
     x.scale(d, d);
-    const COLS = ["#146ef5", "#ff6b2c", "#ee4fb6", "#c6f432", "#1fae5b"];
+    const COLS = ["#4d49fc", "#ff24bd", "#1fc16b", "#e4ff97", "#c8bcff", "#ffd23f"];
     const ps = Array.from({ length: big ? 170 : 90 }, () => ({
       x: W / 2 + (Math.random() - .5) * W * .35, y: H * .4,
       vx: (Math.random() - .5) * 13, vy: -Math.random() * 13 - 5,
@@ -1668,7 +1817,14 @@
       .sort((a, b) => (S.doneAt[b.id] || 0) - (S.doneAt[a.id] || 0));
     app.innerHTML = `<section class="gut"><div class="max progpage">
       <div class="hwtop"><span class="eyebrow">Ta progression est gardée dans ce navigateur</span><h1>Ma progression</h1></div>
+      ${xpBlock()}
       ${statRow()}
+      <div class="sh" id="trophees" style="margin-top:56px"><div><span class="eyebrow">Gagnés en avançant, à ton rythme</span><h2>Mes trophées</h2></div></div>
+      ${shelf(true)}
+      <details class="xprules"><summary>Comment gagner de l'XP</summary>
+        <ul><li>Une leçon complète : <b>${XP.lesson} XP</b> (leçon courte : ${XP.lightp} ou ${XP.light} XP)</li><li>Une explication écrite avec tes mots, en fin de leçon : <b>+${XP.explain} XP</b></li>
+        <li>Un homework : <b>${XP.homework} XP</b> · un défi : <b>${XP.defi} XP</b></li><li>Un module entièrement validé : <b>+${XP.module} XP</b></li></ul>
+        <p class="small">Les niveaux : ${LEVELS.map((l, i) => `${i + 1}. ${esc(l[1])} (${l[0]} XP)`).join(" · ")}. Pas de date ni de délai : l'XP ne se perd jamais.</p></details>
       <div class="progmods">${[...PATH, ...LIB.filter(m => m.items.length)].map(m => {
         const n = m.items.length, d = doneCount(m.items);
         return `<div class="pm"><span class="num">${m.id}</span><div><b>${esc(m.title)}</b><div class="track"><b style="width:${n ? Math.round(d / n * 100) : 0}%"></b></div></div><span class="small">${n ? d + " / " + n : "bientôt"}</span></div>`;
@@ -1684,11 +1840,23 @@
       </div>
       <p class="small" id="savemsg"></p>
     </div></section>`;
+    $$("[data-poster]").forEach(b => b.addEventListener("click", async () => {
+      const m = C.modules.find(x => x.id === b.dataset.poster);
+      try {
+        const blob = await posterPng(m);
+        const a = doc.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `llm-zoomcamp-${m.id === "P" ? "projet" : m.id === "W1" ? "workshop" : "module-" + m.id}.png`;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      } catch (e) { flash(b, "Téléchargement impossible dans ce navigateur"); }
+    }));
+    if (location.hash.endsWith("#trophees")) { const t = $("#trophees"); if (t) t.scrollIntoView(); }
     $("#exp").addEventListener("click", () => {
       const blob = new Blob([JSON.stringify(S, null, 2)], { type: "application/json" });
       const a = doc.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = "mon-zoomcamp-progression.json";
+      a.download = "mon-llm-zoomcamp-progression.json";
       a.click();
       setTimeout(() => URL.revokeObjectURL(a.href), 1000);
     });
@@ -1755,11 +1923,11 @@
     }
     pill.hidden = false;
     pill.href = GH;
-    if (data.behind > 0) { pill.classList.add("late"); pill.innerHTML = `<i></i>Fork en retard de ${data.behind} commit${data.behind > 1 ? "s" : ""}`; pill.title = "Synchronise ton fork (module 0, leçon 6)"; }
+    if (data.behind > 0) { pill.classList.add("late"); pill.innerHTML = `<i></i>Fork en retard de ${data.behind} commit${data.behind > 1 ? "s" : ""}`; pill.title = "Synchronise ton fork avec le cours officiel : bouton Sync fork sur GitHub (vu au module 0 du Zoomcamp DE)"; }
     else { pill.innerHTML = "<i></i>Fork à jour"; pill.title = "Ton fork a tous les commits du repo officiel"; }
   }
 
   addEventListener("hashchange", onRoute);
-  loadMe().then(onRoute);
+  loadMe().then(onRoute).then(() => rewards(null));
   syncStatus();
 })();
