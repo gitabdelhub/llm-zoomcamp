@@ -32,7 +32,7 @@ window.COURSE = {
       cover: { scene: "dag", logos: [["apacheairflow", "#017CEE"], ["docker", "#2496ED"], ["python", "#3776AB"]] },
       art: { bg: "#9fd8ff", seed: 3 }, logo: ["apacheairflow", "#017CEE"],
       sats: [["docker", "#2496ED"], ["postgresql", "#4169E1"], ["python", "#3776AB"]], help: 2,
-      gate: "Homework 3 et défi du DAG IA", planned: 9, items: []
+      gate: "Homework 3 et défi de l'ingestion incrémentale", planned: 9, items: []
     },
     {
       id: "W1", docs: [["Vue d'ensemble et installation", "cohorts/2026/workshops/dlt/lessons/01-overview.md"], ["Des logs locaux à un pipeline", "cohorts/2026/workshops/dlt/lessons/02-filesystem-pipeline.md"], ["Déboguer et faire un tableau de bord", "cohorts/2026/workshops/dlt/lessons/03-debug-and-dashboard.md"], ["Charger depuis une API hébergée", "cohorts/2026/workshops/dlt/lessons/04-rest-api-pipeline.md"], ["Déployer dans le cloud", "cohorts/2026/workshops/dlt/lessons/05-deploy.md"], ["Tableau de bord et planification", "cohorts/2026/workshops/dlt/lessons/06-dashboard-deploy.md"], ["La suite et le récapitulatif", "cohorts/2026/workshops/dlt/lessons/07-where-to-go.md"]], title: "Les traces LLM avec dlt", chips: ["dlt", "DuckDB", "marimo"],

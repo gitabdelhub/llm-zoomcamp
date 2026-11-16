@@ -36,13 +36,13 @@
       ]
     },
     "03": {
-      intro: "Tu fais tourner tes pipelines IA tout seuls avec Airflow 3, l'orchestrateur que tu connais déjà : indexer la FAQ chaque nuit, répondre à des questions en lot, puis un agent et plusieurs agents qui travaillent ensemble, avec des reprises en cas d'erreur.",
+      intro: "Tu fais tourner tes pipelines IA tout seuls avec Airflow 3, l'orchestrateur que tu connais déjà : indexer la FAQ chaque jour dans pgvector, répondre avec et sans RAG, puis un agent et plusieurs agents dans des tâches, avec des reprises qui ne relancent que les erreurs passagères.",
       rows: [
         { zone: "Ton Codespace · Docker Compose", nodes: [
           ["apacheairflow", "#017CEE", "Ton DAG Airflow", "planifié, avec reprises"],
-          ["python", "#3776AB", "Indexation", "télécharger, découper, indexer", "chaque nuit"],
+          ["python", "#3776AB", "Indexation", "télécharger, embedder, charger", "chaque jour"],
           ["model", INK, "Le LLM", "réponses, résumés, agents", "appelé par tes tâches"],
-          ["postgresql", "#4169E1", "PostgreSQL", "les réponses et les coûts", "rangé"]
+          ["postgresql", "#4169E1", "pgvector", "la FAQ et ses embeddings", "cherche dans"]
         ] }
       ]
     },
