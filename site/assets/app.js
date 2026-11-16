@@ -289,6 +289,12 @@
     if (cur !== null) items.push(cur);
     return items;
   }
+  // Le cours officiel ajoute en bas de chaque leçon des liens « Previous / Next » vers les .md de GitHub.
+  // Le site a sa propre navigation : on retire ce bloc, et le hash des leçons reste celui d'avant son ajout.
+  function stripNav(raw) {
+    return raw.replace(/\n<!-- nav:start -->[\s\S]*?<!-- nav:end -->\n/g, "");
+  }
+
   function frontMatter(raw) {
     const m = raw.match(/^---\n([\s\S]*?)\n---\n?/);
     if (!m) return { body: raw, meta: {} };
@@ -969,7 +975,7 @@
         <ol>${units.map((x, j) => `<li class="${j === k ? "cur" : ""}"><a href="#/v/${m.id}/${j}"><span class="c">·</span><span>${esc(x.title)}</span></a></li>`).join("")}</ol></aside>
     </div></section>`;
     let raw;
-    try { raw = await getText(ROOT + u.src); }
+    try { raw = stripNav(await getText(ROOT + u.src)); }
     catch (e) { if (token === routeToken) $("#pvbox").innerHTML = `<div class="upd"><b>Erreur</b><span>Je n'arrive pas à charger cette leçon (${esc(e.message)}).</span></div>`; return; }
     if (token !== routeToken) return;
     const { body, meta } = frontMatter(raw);
@@ -1105,7 +1111,7 @@
     }
     if (it.src) {
       try {
-        const rawText = await getText(ROOT + it.src);
+        const rawText = stripNav(await getText(ROOT + it.src));
         ({ body: course, meta } = frontMatter(rawText));
         base = ROOT + it.src;
         checkHash(it, rawText, token);
@@ -1621,7 +1627,7 @@
     try {
       ov = parseOverlay(await getText(it.overlay));
       if (it.src) {
-        const rawText = await getText(base);
+        const rawText = stripNav(await getText(base));
         hw = parseHomework(frontMatter(rawText).body);
         checkHash(it, rawText, token);
       } else hw = parseHomework(ov.body);
