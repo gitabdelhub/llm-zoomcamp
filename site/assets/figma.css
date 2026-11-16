@@ -1,0 +1,138 @@
+/* Mon LLM Zoomcamp : le style éditorial demandé par AB (référence : la page Figma « Tendances du web design 2026»).
+   Fond blanc, texte noir, beaucoup d'air. Titres énormes en grotesk serrée, poids moyen.
+   Boutons : contour fin arrondi, un seul bouton plein noir. Petits titres en capitales espacées (mono).
+   La couleur vit seulement dans les illustrations géométriques (assets/art.js). Chargé après app.css. */
+:root{
+  --blue:#0a0a0a; --blue-deep:#000; --on-blue:#fff; --blue-soft:#efedff;
+  --bg:#ffffff; --bg-2:#f6f6f4; --ink:#0a0a0a; --muted:#5f5f5f; --line:#e3e3e0;
+  --lav:#c8bcff; --magenta:#ff24bd; --fgreen:#1fc16b; --flime:#e4ff97; --eblue:#4d49fc;
+  --f:"Inter",system-ui,"Helvetica Neue",Arial,sans-serif;
+  --fd:"Inter Tight","Inter",system-ui,sans-serif;
+  --mono:"Geist Mono",ui-monospace,Menlo,Consolas,monospace;
+  --shadow:none;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --blue:#f2f2f0; --blue-deep:#fff; --on-blue:#0a0a0a; --blue-soft:#24213f;
+  --bg:#0b0b0b; --bg-2:#151515; --ink:#f2f2f0; --muted:#a3a3a3; --line:#2a2a2a; --shadow:none}}
+:root[data-theme="dark"]{
+  --blue:#f2f2f0; --blue-deep:#fff; --on-blue:#0a0a0a; --blue-soft:#24213f;
+  --bg:#0b0b0b; --bg-2:#151515; --ink:#f2f2f0; --muted:#a3a3a3; --line:#2a2a2a; --shadow:none}
+
+body{font-family:var(--f);font-size:17px;letter-spacing:-.005em}
+h1,h2,h3,h4{font-family:var(--fd);font-weight:500;letter-spacing:-.04em;line-height:1.02}
+a{color:var(--ink);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
+a.btn,.navl a,.logo,.mod,.mlist a,.ftoc a,.resume,.syncp,.lang-btn{text-decoration:none}
+.mono-lab,.eyebrow{font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--ink)}
+.eyebrow{color:var(--muted)}
+.mono-lab{display:block;margin-bottom:14px}
+
+/* nav : blanche, logo à gauche, liens texte, boutons contour et plein à droite */
+.top{background:var(--bg);backdrop-filter:none;border-bottom:1px solid var(--line)}
+.top .in{padding-block:16px}
+.logo{font-family:var(--fd);font-weight:600;font-size:20px;letter-spacing:-.03em;color:var(--ink)}
+.navl a{opacity:1;font-weight:400;font-size:17px;border-bottom:1px solid transparent}
+.navl a.on{border-color:var(--ink)}
+.navl a:hover{border-color:var(--ink)}
+
+/* boutons */
+.btn{background:var(--ink);color:var(--bg);border-radius:8px;box-shadow:none;font-weight:500;font-size:17px;padding:14px 24px;border:1px solid var(--ink)}
+.btn:hover{transform:none;background:var(--ink);opacity:.86}
+.btn.ghost,.btn.ghost-w{background:transparent;color:var(--ink);border:1px solid var(--line);box-shadow:none}
+.btn.ghost:hover,.btn.ghost-w:hover{border-color:var(--ink);opacity:1}
+.btn.white{background:#fff;color:#0a0a0a;border-color:#fff;box-shadow:none}
+.btn.sm{padding:9px 15px;font-size:15px}
+#continue{border-radius:8px}
+
+/* fil d'Ariane souligné */
+.crumbs{font-size:17px;color:var(--ink);gap:12px;align-items:center}
+.crumbs a{text-decoration:underline;text-underline-offset:5px;text-decoration-thickness:1px;color:var(--ink)}
+.crumbs span{color:var(--muted)}
+
+/* accueil : le grand titre */
+.fhero .max{padding-block:44px 56px;display:grid;gap:28px}
+.display{font-size:clamp(44px,6.6vw,96px);font-weight:500;letter-spacing:-.045em;line-height:.98;max-width:19ch;text-wrap:balance}
+.display .hello{display:block;font-size:.42em;letter-spacing:-.03em;color:var(--muted);margin-bottom:.2em}
+.fhero-row{display:flex;gap:28px 48px;align-items:end;justify-content:space-between;flex-wrap:wrap}
+.fhero .lead{font-size:clamp(18px,1.6vw,21px);max-width:46ch;color:var(--ink)}
+.fhero .ctas{display:flex;gap:12px;flex-wrap:wrap}
+.fhero .resume{color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:10px;max-width:520px;margin-top:0;backdrop-filter:none}
+.fhero .resume:hover{background:var(--bg-2)}
+.fhero .resume small{color:var(--muted)}
+
+/* la table des matières à gauche, l'illustration à droite */
+.fsplit{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:48px;padding-block:8px 24px;border-top:1px solid var(--line);padding-top:40px}
+.ftoc ol{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.ftoc li{display:flex;justify-content:space-between;gap:16px;align-items:baseline;padding:9px 0}
+.ftoc a{font-size:18px;color:var(--ink)}
+.ftoc a:hover{text-decoration:underline;text-underline-offset:5px}
+.ftoc .tn{white-space:nowrap}
+.ftoc li.now a{text-decoration:underline;text-underline-offset:5px}
+.ftoc small{font-family:var(--mono);font-size:12px;color:var(--muted);white-space:nowrap}
+.ftoc li.ok small{color:var(--ok)}
+.fart{border-radius:2px;overflow:hidden;align-self:start;line-height:0}
+.fart svg,.cover svg,.mh-art svg,.mosaic svg{width:100%;height:100%;display:block}
+@media (max-width:900px){.fsplit{grid-template-columns:1fr;gap:28px}.fart{order:-1}}
+
+/* animations lentes des formes */
+.art .spin{animation:artspin 22s linear infinite;transform-origin:50px 50px}
+.art .spin.slow{animation-duration:48s}
+.art .drift{animation:artdrift 6s ease-in-out infinite alternate}
+@keyframes artspin{to{transform:rotate(360deg)}}
+@keyframes artdrift{to{transform:translateX(6px)}}
+.mod:hover .art .spin{animation-duration:6s}
+@media (prefers-reduced-motion:reduce){.art .spin,.art .drift{animation:none}}
+
+/* cartes des modules */
+.mods{gap:28px}
+.mod{border-radius:4px;border:1px solid var(--line);transition:border-color .2s ease}
+.mod:hover{transform:none;box-shadow:none;border-color:var(--ink)}
+.cover{height:190px;background:none;isolation:auto}
+.cover::after{display:none}
+.mod.locked .cover{filter:none}
+.logo-main{left:18px;top:auto;bottom:18px;margin:0;width:62px;height:62px;border-radius:2px;box-shadow:none;border:1px solid #0a0a0a}
+.logo-main svg{width:36px;height:36px}
+.logo-main.wide{width:96px;margin:0}
+.logo-main.wide img{width:76px}
+.mod:hover .logo-main{transform:none}
+.cover .big{color:#0a0a0a;opacity:.9;font-family:var(--fd);font-weight:500;font-size:56px;right:14px;bottom:6px;background:#fff;padding:2px 10px 6px;border:1px solid #0a0a0a;line-height:1}
+.cover .badge,.lockb{background:#fff;color:#0a0a0a;border:1px solid #0a0a0a;border-radius:2px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:500}
+.mod .b{padding:20px}
+.mod h3{font-size:25px}
+.chip{border-radius:999px;background:transparent;border:1px solid var(--line);color:var(--ink);font-size:13px;padding:3px 11px}
+.track{background:var(--line)}
+.track b{background:var(--ink)}
+
+/* page d'un module : bandeau clair, illustration à droite */
+.modhero{background:var(--bg);color:var(--ink);position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+.modhero .mh-art{position:absolute;right:0;top:0;bottom:0;width:42%;opacity:1}
+.modhero .in{position:relative;padding-block:40px 52px}
+.modhero h1{font-size:clamp(40px,6vw,84px);color:var(--ink);max-width:12ch}
+.modhero .eyebrow,.modhero .eyebrow.light{color:var(--muted)}
+.crumbs.light,.crumbs.light a{color:var(--ink)}
+.chip.light{background:var(--bg);border-color:var(--line);color:var(--ink)}
+.modhead .logo-main{position:static;border:1px solid var(--line)}
+@media (max-width:900px){.modhero .mh-art{position:relative;width:100%;height:180px}}
+
+/* comment ça marche */
+.howhero{background:var(--bg);color:var(--ink);border-bottom:1px solid var(--line)}
+.howhero p{color:var(--ink)}
+.howhero .display{max-width:18ch}
+
+/* le bloc noir « ce que tu sais déjà » */
+.atelier{border-radius:4px}
+.mosaic{background:#0a0a0a}
+.mosaic .tag{border-radius:2px;font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:500;box-shadow:none}
+.mosaic .tag i{background:var(--magenta);border-radius:50%}
+.atelier .mono-lab{color:#bdbdbd}
+.atelier h2{font-weight:500}
+.atelier .todo a{color:#fff}
+.atelier .todo .k{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:none;font-weight:500;background:transparent;border:1px solid #3a3a3a;color:#cfcfcf}
+
+/* séance du jour, bienvenue, statistiques */
+.today,.welcome{border-radius:4px;box-shadow:none}
+.statrow strong{font-family:var(--fd);font-weight:500}
+.sh h2{font-size:clamp(34px,4.2vw,56px)}
+
+/* leçons : on garde la structure, en noir et blanc */
+.mlist li.cur{background:var(--bg-2)}
+.pring circle:last-child{stroke:var(--ink)}
