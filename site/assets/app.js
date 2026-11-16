@@ -1231,6 +1231,9 @@
     // Un pont entre deux moments du cours. « [01-12] texte » vise une leçon, « [02] texte » un module :
     // le lien s'affiche quand la cible est ouverte, sinon seulement son nom.
     function bridgeCard(cls, label, src) {
+      // [DE:01-09] renvoie à une leçon de ton autre site, le Zoomcamp Data Engineering.
+      const de = /^\[DE:([\w-]+)\]\s*/.exec(src);
+      if (de) return card(cls, `<span class="lab">${label}</span><p>${mdInline(src.slice(de[0].length))}</p><a class="bridge" href="${esc(C.de)}#/l/${esc(de[1])}" target="_blank" rel="noopener">Revoir la leçon ${esc(de[1])} de ton Zoomcamp DE →</a>`);
       const m = /^\[([\w-]+)\]\s*/.exec(src);
       const target = m && (byId(m[1]) || C.modules.find(x => x.id === m[1]));
       let link = "";
@@ -1585,13 +1588,16 @@
     const questions = [];
     let ctx = []; // les sections entre deux questions servent de contexte à la suivante
     sections.forEach(s => {
-      const m = s.title.match(/^Question\s+(\d+)[.:]?\s*(.*)$/i);
+      // « ## Question 1. … » (DE) ou « ## Q1. … » (LLM)
+      const m = s.title.match(/^(?:Question\s+|Q)(\d+)[.:]?\s*(.*)$/i);
       if (!m) { ctx.push(s); return; }
       const opts = [], text = [];
+      // Les options sont des puces « * » (LLM) ou « - » (DE). S'il y a des « * », les « - » restent du texte d'explication.
+      const bullet = s.lines.some(l => /^\* /.test(l)) ? /^\* / : /^- /;
       let f = false;
       s.lines.forEach(l => {
         if (/^(```|~~~)/.test(l)) f = !f;
-        if (!f && /^- /.test(l)) opts.push(l.slice(2).trim());
+        if (!f && bullet.test(l)) opts.push(l.slice(2).trim());
         else text.push(l);
       });
       questions.push({ n: +m[1], title: m[2], text: text.join("\n").trim(), opts, ctx });
