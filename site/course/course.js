@@ -53,7 +53,7 @@ window.COURSE = {
       cover: { scene: "monitor", logos: [["grafana", "#F46800"], ["streamlit", "#FF4B4B"], ["postgresql", "#4169E1"]] },
       art: { bg: "#ffcfb8", seed: 6 }, logo: ["grafana", "#F46800"],
       sats: [["streamlit", "#FF4B4B"], ["postgresql", "#4169E1"], ["docker", "#2496ED"]], help: 2,
-      gate: "Homework 5 et défi du tableau de bord", planned: 14, items: []
+      gate: "Homework 5 et défi de la pile complète", planned: 14, items: []
     },
     {
       id: "06", dir: "06-best-practices", title: "Bonnes pratiques", chips: ["Recherche hybride", "Reranking", "LangChain"],
