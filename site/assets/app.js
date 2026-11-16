@@ -481,7 +481,7 @@
 
     <section class="gut"><div class="max fsplit">
       <aside class="ftoc"><span class="mono-lab">Table des matières</span><ol>${toc}</ol></aside>
-      <div class="fart">${window.ART ? ART.svg(11, "#c8bcff", { w: 640, h: 420 }) : ""}</div>
+      <div class="fart">${window.ART ? ART.home() : ""}</div>
     </div></section>
 
     <section class="section gut"><div class="max">
@@ -584,7 +584,7 @@
     const total = m.items.reduce((a, i) => a + (i.min || 0), 0);
     const count = n ? `${d} / ${n} étapes${total ? " · " + fmtMin(total) : ""}` : `${m.planned} leçons`;
     return `<${tag} class="mod${open ? "" : " locked"}" href="#/m/${m.id}"${open ? "" : m.bonus ? ' title="Bonus facultatif"' : ' title="Bientôt : tu peux déjà lire le cours officiel"'}>
-      <div class="cover">${window.ART ? ART.svg(m.art.seed, m.art.bg, { w: 400, h: 220 }) : ""}<span class="logo-main${m.wide ? " wide" : ""}">${icon(m.logo[0], m.logo[1])}</span>${badge}<span class="big">${m.id}</span></div>
+      <div class="cover">${window.ART ? (m.cover ? ART.cover(m) : ART.svg(m.art.seed, m.art.bg, { w: 400, h: 220 })) : ""}${m.cover ? "" : `<span class="logo-main${m.wide ? " wide" : ""}">${icon(m.logo[0], m.logo[1])}</span>`}${badge}<span class="big">${m.id}</span></div>
       <div class="b"><h3>${esc(m.title)}</h3><div class="chips">${m.chips.map(c => `<span class="chip">${esc(c)}</span>`).join("")}</div>
         <div class="track"><b style="width:${pct}%"></b></div>
         <div class="foot"><span>${count}</span><span class="help" title="Niveau d'aide">Aide ${[1, 2, 3].map(k => `<i class="${k <= m.help ? "on" : ""}"></i>`).join("")}</span></div></div>
@@ -602,7 +602,7 @@
       ["W1-02", "Une API page par page avec dlt", "le workshop des traces LLM"]
     ];
     return `<article class="atelier">
-      <div class="mosaic">${window.ART ? ART.svg(23, "#0a0a0a", { w: 520, h: 420 }) : ""}<div class="tag"><i></i>Déjà appris au Zoomcamp DE</div></div>
+      <div class="mosaic">${window.ART ? ART.de() : ""}<div class="tag"><i></i>Déjà appris au Zoomcamp DE</div></div>
       <div class="txt">
         <span class="mono-lab">Ce que tu sais déjà</span>
         <h2>Pas de module 0 ici : tu l'as déjà fait.</h2>
@@ -762,7 +762,7 @@
         ${now ? `<a class="btn sm" href="#/l/${it.id}">${S.les[it.id] && S.les[it.id].step ? "Reprendre" : "Commencer"}</a>` : ""}</li>`;
     }).join("");
     app.innerHTML = `
-    <section class="modhero gut"><div class="mh-art">${window.ART ? ART.svg(m.art.seed + 40, m.art.bg, { w: 900, h: 420 }) : ""}</div><div class="max in">
+    <section class="modhero gut"><div class="mh-art">${window.ART ? (m.cover ? ART.cover(m) : ART.svg(m.art.seed + 40, m.art.bg, { w: 900, h: 420 })) : ""}</div><div class="max in">
       <nav class="crumbs light"><a href="#/">Accueil</a><span>/</span><span>${esc(modName(m))}</span></nav>
       <div class="modhead"><span class="logo-main${m.wide ? " wide" : ""}">${icon(m.logo[0], m.logo[1])}</span>
         <div><span class="eyebrow light">${m.id === "P" ? "Projet" : m.id === "W1" ? "Workshop" : m.bonus ? "Bonus facultatif" : "Module " + m.id}</span><h1>${esc(m.title)}</h1></div></div>
