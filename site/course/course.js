@@ -18,7 +18,7 @@ window.COURSE = {
       cover: { scene: "rag", logos: [["openai"], ["python", "#3776AB"], ["jupyter", "#F37626"]] },
       art: { bg: "#c8bcff", seed: 1 }, logo: ["openai"],
       sats: [["python", "#3776AB"], ["sqlite", "#003B57"], ["elasticsearch", "#005571"]], help: 3,
-      gate: "Homework 1 et défi de la FAQ", planned: 16, items: []
+      gate: "Homework 1 et défi de l'agent", planned: 16, items: []
     },
     {
       id: "02", dir: "02-vector-search", title: "Recherche vectorielle", chips: ["Embeddings", "sqlitesearch", "pgvector"],

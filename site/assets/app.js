@@ -1231,6 +1231,9 @@
     // Un pont entre deux moments du cours. « [01-12] texte » vise une leçon, « [02] texte » un module :
     // le lien s'affiche quand la cible est ouverte, sinon seulement son nom.
     function bridgeCard(cls, label, src) {
+      // [DE:01-09] renvoie à une leçon de ton autre site, le Zoomcamp Data Engineering.
+      const de = /^\[DE:([\w-]+)\]\s*/.exec(src);
+      if (de) return card(cls, `<span class="lab">${label}</span><p>${mdInline(src.slice(de[0].length))}</p><a class="bridge" href="${esc(C.de)}#/l/${esc(de[1])}" target="_blank" rel="noopener">Revoir la leçon ${esc(de[1])} de ton Zoomcamp DE →</a>`);
       const m = /^\[([\w-]+)\]\s*/.exec(src);
       const target = m && (byId(m[1]) || C.modules.find(x => x.id === m[1]));
       let link = "";
